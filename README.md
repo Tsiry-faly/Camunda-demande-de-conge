@@ -17,9 +17,9 @@ Se familiariser avec les composants clés de Camunda 8 :
 
 ## Fonctionnement du workflow
 
-1. **Soumission de la demande** — l'employé remplit un formulaire (nom, dates de début/fin, motif)
-2. **Validation manager** — le manager examine la demande et choisit d'approuver ou de refuser
-3. **Passerelle de décision (Exclusive Gateway)** — le processus route automatiquement 
+1. **Soumission de la demande** : l'employé remplit un formulaire (nom, dates de début/fin, motif)
+2. **Validation manager** : le manager examine la demande et choisit d'approuver ou de refuser
+3. **Passerelle de décision (Exclusive Gateway)** : le processus route automatiquement 
    vers l'issue correspondante selon la décision, via une expression FEEL
 
 ## Stack technique
