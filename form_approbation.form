@@ -1,0 +1,39 @@
+{
+  "components": [
+    {
+      "label": "Décision",
+      "values": [
+        {
+          "label": "Approuvé",
+          "value": "approuve"
+        },
+        {
+          "label": "Réfuser",
+          "value": "refuser"
+        }
+      ],
+      "type": "select",
+      "layout": {
+        "row": "Row_1j9p4k1",
+        "columns": null
+      },
+      "id": "Field_0gxt8lr",
+      "key": "decision",
+      "searchable": false,
+      "disabled": false,
+      "readonly": false,
+      "validate": {
+        "required": true
+      }
+    }
+  ],
+  "type": "default",
+  "id": "approbation-form",
+  "executionPlatform": "Camunda Cloud",
+  "executionPlatformVersion": "8.10.0",
+  "exporter": {
+    "name": "Camunda Modeler",
+    "version": "5.48.0"
+  },
+  "schemaVersion": 19
+}

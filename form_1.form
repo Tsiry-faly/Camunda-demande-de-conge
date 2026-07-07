@@ -1,0 +1,97 @@
+{
+  "components": [
+    {
+      "label": "NOM",
+      "type": "textfield",
+      "layout": {
+        "row": "Row_16r24ce",
+        "columns": null
+      },
+      "id": "Field_0kz0v96",
+      "key": "nom"
+    },
+    {
+      "label": "Prénoms",
+      "type": "textfield",
+      "layout": {
+        "row": "Row_0nqjbm1",
+        "columns": null
+      },
+      "id": "Field_1pbhk8h",
+      "key": "prenoms"
+    },
+    {
+      "label": "Département",
+      "values": [
+        {
+          "label": "RH",
+          "value": "rh"
+        },
+        {
+          "label": "Finance et Comptabilité",
+          "value": "fc"
+        },
+        {
+          "label": "Marketing et Communication",
+          "value": "mc"
+        },
+        {
+          "label": "Production / Opérations",
+          "value": "po"
+        },
+        {
+          "label": "Service informatique",
+          "value": "si"
+        }
+      ],
+      "type": "select",
+      "layout": {
+        "row": "Row_1hauahd",
+        "columns": null
+      },
+      "id": "Field_19wux98",
+      "key": "departement"
+    },
+    {
+      "subtype": "date",
+      "dateLabel": "Date de debut",
+      "type": "datetime",
+      "layout": {
+        "row": "Row_0x9kzuv",
+        "columns": null
+      },
+      "id": "Field_1m61kc4",
+      "key": "dateDebut"
+    },
+    {
+      "subtype": "date",
+      "dateLabel": "Date de fin",
+      "type": "datetime",
+      "layout": {
+        "row": "Row_0x9kzuv",
+        "columns": null
+      },
+      "id": "Field_1j8atwp",
+      "key": "dateFin"
+    },
+    {
+      "label": "Motif",
+      "type": "textarea",
+      "layout": {
+        "row": "Row_0l5upvs",
+        "columns": null
+      },
+      "id": "Field_0vds7z5",
+      "key": "motif"
+    }
+  ],
+  "type": "default",
+  "id": "demande-conge",
+  "executionPlatform": "Camunda Cloud",
+  "executionPlatformVersion": "8.10.0",
+  "exporter": {
+    "name": "Camunda Modeler",
+    "version": "5.48.0"
+  },
+  "schemaVersion": 19
+}
