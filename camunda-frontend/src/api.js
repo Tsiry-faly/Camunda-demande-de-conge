@@ -5,22 +5,37 @@ const api = axios.create({
   headers: { 'Content-Type': 'application/json' },
 })
 
-// Pause utilitaire (pour laisser le temps à la tâche d'être indexée)
+// Lit la valeur d'un cookie par son nom
+function getCookie(name) {
+  const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'))
+  return match ? match[2] : null
+}
+
+// Ajoute automatiquement le jeton CSRF sur chaque requête sortante
+api.interceptors.request.use((config) => {
+  const csrfToken = getCookie('X-CSRF-TOKEN')
+  if (csrfToken) {
+    config.headers['X-CSRF-TOKEN'] = csrfToken
+  }
+  return config
+})
+
 function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms))
 }
 
-// Démarre une instance ET complète directement la tâche "Remplir la demande"
+// Récupère un premier cookie CSRF au chargement (via un GET neutre)
+export async function initCsrf() {
+  await api.get('/topology')
+}
+
 export async function submitLeaveRequest(variables) {
-  // 1. Démarrer l'instance
   const { data: instance } = await api.post('/process-instances', {
     processDefinitionId: 'Process_0ul30q6',
   })
 
-  // 2. Attendre un court instant que la tâche soit indexée
   await sleep(1000)
 
-  // 3. Chercher la tâche correspondant à cette instance précise
   const { data: searchResult } = await api.post('/user-tasks/search', {
     filter: { state: 'CREATED' },
   })
@@ -33,12 +48,10 @@ export async function submitLeaveRequest(variables) {
     throw new Error("Impossible de trouver la tâche associée à cette instance.")
   }
 
-  // 4. S'assigner la tâche
   await api.post(`/user-tasks/${task.userTaskKey}/assignment`, {
     assignee: variables.prenom + ' ' + variables.nom,
   })
 
-  // 5. Compléter la tâche avec les données du formulaire
   await api.post(`/user-tasks/${task.userTaskKey}/completion`, {
     variables,
   })
