@@ -15,8 +15,6 @@ export default function LeaveRequestForm() {
   const [status, setStatus] = useState('idle') // idle | loading | success | error
   const [errorMessage, setErrorMessage] = useState('')
   const [instanceKey, setInstanceKey] = useState(null)
-  // const [dateDebut, setDateDebut] = useState('')
-  // const [dateFin, setDateFin] = useState('')
 
   function handleChange(e) {
     const { name, value } = e.target

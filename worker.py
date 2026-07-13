@@ -18,6 +18,8 @@ def check_leave_balance(
 
     solde = row[0] if row else 0
 
+    if not dateDebut or not dateFin:
+        raise ValueError("Les dates ne peuvent pas être vides")
     d1 = datetime.strptime(dateDebut, "%Y-%m-%d")
     d2 = datetime.strptime(dateFin, "%Y-%m-%d")
     jours_demandes = (d2 - d1).days + 1
