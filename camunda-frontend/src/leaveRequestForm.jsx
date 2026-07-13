@@ -15,8 +15,8 @@ export default function LeaveRequestForm() {
   const [status, setStatus] = useState('idle') // idle | loading | success | error
   const [errorMessage, setErrorMessage] = useState('')
   const [instanceKey, setInstanceKey] = useState(null)
-  const [dateDebut, setDateDebut] = useState('')
-  const [dateFin, setDateFin] = useState('')
+  // const [dateDebut, setDateDebut] = useState('')
+  // const [dateFin, setDateFin] = useState('')
 
   function handleChange(e) {
     const { name, value } = e.target
@@ -79,40 +79,40 @@ export default function LeaveRequestForm() {
             style={{ width: '100%', padding: 8 }}
           >
             <option value="">-- Sélectionner --</option>
-            <option value="IT">RH</option>
-            <option value="Marketing">Finance et comptabilite</option>
-            <option value="RH">Marketing et communication</option>
-            <option value="Finance">Production & operation</option>
-            <option value="Finance">Service informatique</option>
+            <option value="rh">RH</option>
+            <option value="fc">Finance et comptabilite</option>
+            <option value="mc">Marketing et communication</option>
+            <option value="po">Production & operation</option>
+            <option value="si">Service informatique</option>
           </select>
         </div>
 
         <div style={{ display: 'flex', gap: 16, marginBottom: 12 }}>
-          <div style={{ marginBottom: 12 }}>
+          <div style={{ flex: 1 }}>
             <label>Date de début</label>
             <input
               type="date"
               name="dateDebut"
-              value={dateDebut}
-              onChange={(e) => setDateDebut(e.target.value)}
+              value={formData.dateDebut}
+              onChange={handleChange}
               onKeyDown={(e) => e.preventDefault()}
               onClick={(e) => e.target.showPicker()}
               min={new Date().toISOString().split('T')[0]}
-              style= {{with : '100%'}}
+              style={{ width: '100%' }}
             />
           </div>
 
-          <div style={{ marginBottom: 12 }}>
+          <div style={{ flex: 1 }}>
             <label>Date de fin</label>
             <input
               type="date"
               name="dateFin"
-              value={dateFin}
-              onChange={(e) => setDateFin(e.target.value)}
+              value={formData.dateFin}
+              onChange={handleChange}
               onKeyDown={(e) => e.preventDefault()}
               onClick={(e) => e.target.showPicker()}
-              min={dateDebut || new Date().toISOString().split('T')[0]}
-              style= {{with : '100%'}}
+              min={formData.dateDebut || new Date().toISOString().split('T')[0]}
+              style={{ width: '100%' }}
             />
           </div>
         </div>
