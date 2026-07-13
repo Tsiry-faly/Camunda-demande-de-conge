@@ -5,7 +5,9 @@ import os
 from flask import Blueprint, request, jsonify, session
 from werkzeug.security import check_password_hash
 
-DB_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "conges.db")
+DB_PATH = DB_PATH = os.path.join(
+    os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "conges.db"
+)
 auth_bp = Blueprint("auth", __name__)
 
 
