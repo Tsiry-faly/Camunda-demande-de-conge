@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from './AuthContext'
 
 // Suffixe aleatoire genere a chaque montage : empeche le navigateur de
@@ -87,6 +87,9 @@ export default function LoginPage() {
           {loading ? 'Connexion...' : 'Se connecter'}
         </button>
       </form>
+      <p style={{ marginTop: 16 }}>
+        <Link to="/register">Créer un compte</Link>
+      </p>
     </div>
   )
 }
