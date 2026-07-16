@@ -14,13 +14,18 @@ export async function login(identifiant, password) {
   const { data } = await api.post('/api/login', { identifiant, password })
   return data
 }
-
+  
 export async function logout() {
   await api.post('/api/logout')
 }
 
 export async function fetchMe() {
   const { data } = await api.get('/api/me')
+  return data
+}
+
+export async function fetchEmployes() {
+  const { data } = await api.get('/api/employes')
   return data
 }
 

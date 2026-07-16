@@ -200,6 +200,19 @@ def refuser(task_id):
     )  # valeur exacte attendue par le gateway
     return (jsonify({"ok": True}), 200) if ok else (jsonify({"error": err}), 500)
 
+@app.route("/api/employes", methods=["GET"])
+@login_required(role="admin")
+def liste_employes():
+    """Vue d'ensemble des employes actifs et de leur solde de conges restant."""
+    conn = get_db()
+    rows = conn.execute(
+        """SELECT id, nom, prenom, departement, conge
+           FROM employes
+           WHERE statut = 'actif'
+           ORDER BY departement, nom, prenom"""
+    ).fetchall()
+    conn.close()
+    return jsonify([dict(r) for r in rows])
 
 if __name__ == "__main__":
     app.run(port=5000, debug=True)
