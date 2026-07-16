@@ -1,8 +1,3 @@
-"""
-A lancer UNE FOIS depuis la racine du repo (là où se trouve conges.db) :
-    python migration_add_auth.py
-"""
-
 import sqlite3
 from werkzeug.security import generate_password_hash
 

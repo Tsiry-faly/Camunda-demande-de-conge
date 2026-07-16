@@ -4,6 +4,7 @@ import ProtectedRoute from './ProtectedRoute'
 import LoginPage from './LoginPage'
 import LeaveRequestForm from './leaveRequestForm'
 import AdminApprovalPage from './AdminApprovalPage'
+import RegisterPage from './RegisterPage'
 
 function App() {
   return (
@@ -12,6 +13,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Navigate to="/login" replace />} />
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
           <Route
             path="/employe"
             element={

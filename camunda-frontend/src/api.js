@@ -37,12 +37,22 @@ export async function refuserDemande(taskId) {
   await api.post(`/api/demandes/${taskId}/refuser`)
 }
 
+export async function register(payload) {
+  const { data } = await api.post('/api/register', payload)
+  return data
+}
+
+export async function fetchInscriptionsEnAttente() {
+  const { data } = await api.get('/api/inscriptions-en-attente')
+  return data
+}
+
+export async function validerInscription(employeId) {
+  await api.post(`/api/inscriptions/${employeId}/valider`)
+}
+
+export async function refuserInscription(employeId) {
+  await api.post(`/api/inscriptions/${employeId}/refuser`)
+}
+
 export default api
-
-
-// import axios from 'axios'
-
-// export async function submitLeaveRequest(variables) {
-//   const { data } = await axios.post('http://localhost:5000/api/start-leave-request', variables)
-//   return data.processInstanceKey
-// }

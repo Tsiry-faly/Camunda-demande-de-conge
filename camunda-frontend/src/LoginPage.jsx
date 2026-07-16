@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from './AuthContext'
 
 export default function LoginPage() {
@@ -26,10 +26,10 @@ export default function LoginPage() {
 
   return (
     <div style={{ maxWidth: 380, margin: '4rem auto', fontFamily: 'sans-serif' }}>
-      <h2>Connexion</h2>
-      <form onSubmit={handleSubmit}>
+      <h2 style={{marginBottom : 50}}>Connexion</h2>
+      <form onSubmit={handleSubmit} style={{alignItems: 'center'}}>
         <div style={{ marginBottom: 12 }}>
-          <label>Email (employé) ou identifiant (admin)</label>
+          <label>Email ou identifiant</label>
           <input
             type="text"
             value={identifiant}
@@ -52,6 +52,9 @@ export default function LoginPage() {
         <button type="submit" disabled={loading} style={{ padding: '10px 20px', color: 'black' }}>
           {loading ? 'Connexion...' : 'Se connecter'}
         </button>
+        <p style={{ marginTop: 16 }}>
+          <Link to="/register">Créer un compte</Link>
+        </p>
       </form>
     </div>
   )

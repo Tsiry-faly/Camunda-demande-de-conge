@@ -3,7 +3,8 @@ import sqlite3
 import os
 
 from flask import Blueprint, request, jsonify, session
-from werkzeug.security import check_password_hash
+from werkzeug.security import check_password_hash, generate_password_hash
+import re
 
 DB_PATH = DB_PATH = os.path.join(
     os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "conges.db"
@@ -15,6 +16,56 @@ def get_db():
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     return conn
+
+
+DEPARTEMENTS_VALIDES = {"si", "rh", "fc", "mc", "po"}
+
+
+@auth_bp.route("/api/register", methods=["POST"])
+def register():
+    data = request.get_json(force=True)
+    nom = (data.get("nom") or "").strip()
+    prenom = (data.get("prenom") or "").strip()
+    departement = (data.get("departement") or "").strip().lower()
+    email = (data.get("email") or "").strip().lower()
+    password = data.get("password") or ""
+
+    if not all([nom, prenom, departement, email, password]):
+        return jsonify({"error": "Tous les champs sont requis"}), 400
+
+    if departement not in DEPARTEMENTS_VALIDES:
+        return jsonify({"error": "Departement invalide"}), 400
+
+    if len(password) < 6:
+        return jsonify({"error": "Mot de passe trop court (6 caracteres minimum)"}), 400
+
+    if not re.match(r"^[^@\s]+@[^@\s]+\.[^@\s]+$", email):
+        return jsonify({"error": "Email invalide"}), 400
+
+    conn = get_db()
+    existant = conn.execute(
+        "SELECT id FROM employes WHERE email = ?", (email,)
+    ).fetchone()
+    if existant:
+        conn.close()
+        return jsonify({"error": "Un compte existe deja avec cet email"}), 409
+
+    conn.execute(
+        """INSERT INTO employes (nom, prenom, departement, conge, email, password_hash, statut)
+           VALUES (?, ?, ?, 25, ?, ?, 'en_attente')""",
+        (nom, prenom, departement, email, generate_password_hash(password)),
+    )
+    conn.commit()
+    conn.close()
+
+    return (
+        jsonify(
+            {
+                "message": "Inscription enregistree, en attente de validation par un administrateur"
+            }
+        ),
+        201,
+    )
 
 
 @auth_bp.route("/api/login", methods=["POST"])
@@ -51,6 +102,13 @@ def login():
         and employe["password_hash"]
         and check_password_hash(employe["password_hash"], password)
     ):
+        if employe["statut"] != "actif":
+            return (
+                jsonify(
+                    {"error": "Compte en attente de validation par un administrateur"}
+                ),
+                403,
+            )
         session.clear()
         session["role"] = "employe"
         session["user_id"] = employe["id"]

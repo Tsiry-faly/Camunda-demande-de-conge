@@ -144,6 +144,36 @@ def demandes_en_attente():
     conn.close()
     return jsonify(resultats)
 
+@app.route("/api/inscriptions-en-attente", methods=["GET"])
+@login_required(role="admin")
+def inscriptions_en_attente():
+    conn = get_db()
+    rows = conn.execute(
+        "SELECT id, nom, prenom, departement, email FROM employes WHERE statut = 'en_attente' ORDER BY id"
+    ).fetchall()
+    conn.close()
+    return jsonify([dict(r) for r in rows])
+
+
+@app.route("/api/inscriptions/<int:employe_id>/valider", methods=["POST"])
+@login_required(role="admin")
+def valider_inscription(employe_id):
+    conn = get_db()
+    conn.execute("UPDATE employes SET statut = 'actif' WHERE id = ?", (employe_id,))
+    conn.commit()
+    conn.close()
+    return jsonify({"ok": True})
+
+
+@app.route("/api/inscriptions/<int:employe_id>/refuser", methods=["POST"])
+@login_required(role="admin")
+def refuser_inscription(employe_id):
+    conn = get_db()
+    conn.execute("DELETE FROM employes WHERE id = ? AND statut = 'en_attente'", (employe_id,))
+    conn.commit()
+    conn.close()
+    return jsonify({"ok": True})
+
 
 def _traiter_demande(task_id, decision):
     r = requests.post(
