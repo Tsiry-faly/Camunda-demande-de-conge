@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { submitLeaveRequest } from './api'
 import { useAuth } from './AuthContext'
+import { departementLabel } from './departements'
 
 const initialState = {
   dateDebut: '',
@@ -54,7 +55,7 @@ export default function LeaveRequestForm() {
           <div className="topbar-identity" style={{ marginBottom: 24 }}>
             <span className="topbar-avatar">{initiales || '?'}</span>
             <span>
-              Connecté en tant que <strong style={{ color: 'var(--ink)' }}>{user?.prenom} {user?.nom}</strong> — {user?.departement}
+              Connecté en tant que <strong style={{ color: 'var(--ink)' }}>{user?.prenom} {user?.nom}</strong> — {departementLabel(user?.departement)}
             </span>
           </div>
 

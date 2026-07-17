@@ -1,14 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { register } from './api'
-
-const DEPARTEMENTS = [
-  { value: 'si', label: 'Systèmes Informatiques' },
-  { value: 'rh', label: 'Ressources Humaines' },
-  { value: 'fc', label: 'Finance / Comptabilité' },
-  { value: 'mc', label: 'Marketing / Communication' },
-  { value: 'po', label: 'Production / Opérations' },
-]
+import { DEPARTEMENTS } from './departements'
 
 export default function RegisterPage() {
   const [formData, setFormData] = useState({

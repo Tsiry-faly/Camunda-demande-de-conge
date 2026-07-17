@@ -5,6 +5,7 @@ import {
   fetchEmployes,
 } from './api'
 import { useAuth } from './AuthContext'
+import { departementLabel } from './departements'
 
 const ONGLETS = [
   { id: 'inscriptions', label: 'Inscriptions en attente' },
@@ -122,7 +123,7 @@ export default function AdminApprovalPage() {
               <div key={i.id} className="item-card">
                 <div className="item-body">
                   <p className="item-name">{i.prenom} {i.nom}</p>
-                  <p className="item-meta">{i.departement}</p>
+                  <p className="item-meta">{departementLabel(i.departement)}</p>
                   <p className="item-meta">{i.email}</p>
                   <span className="badge badge-pending" style={{ marginTop: 8 }}>En attente</span>
                 </div>
@@ -156,7 +157,7 @@ export default function AdminApprovalPage() {
               <div key={d.id} className="item-card">
                 <div className="item-body">
                   <p className="item-name">{d.employe}</p>
-                  <p className="item-meta">{d.departement}</p>
+                  <p className="item-meta">{departementLabel(d.departement)}</p>
                   <p className="item-meta">Du {d.date_debut} au {d.date_fin}</p>
                   {d.motif && <p className="item-motif">{d.motif}</p>}
                   <span className="badge badge-pending" style={{ marginTop: 8 }}>En attente</span>
@@ -205,7 +206,7 @@ export default function AdminApprovalPage() {
                       <tr key={e.id}>
                         <td>{e.nom}</td>
                         <td>{e.prenom}</td>
-                        <td>{e.departement}</td>
+                        <td>{departementLabel(e.departement)}</td>
                         <td className="num">{e.conge} j.</td>
                       </tr>
                     ))}
