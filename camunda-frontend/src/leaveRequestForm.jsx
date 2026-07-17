@@ -111,7 +111,7 @@ export default function LeaveRequestForm() {
 
           {status === 'success' && (
             <p className="alert alert-success">
-              Demande soumise avec succès ! Instance <span className="instance-tag">{instanceKey}</span>
+              Demande soumise avec succès !
             </p>
           )}
 
