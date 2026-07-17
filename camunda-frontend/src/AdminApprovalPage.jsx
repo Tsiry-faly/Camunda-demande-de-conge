@@ -6,6 +6,12 @@ import {
 } from './api'
 import { useAuth } from './AuthContext'
 
+const ONGLETS = [
+  { id: 'inscriptions', label: 'Inscriptions en attente' },
+  { id: 'demandes', label: 'Demandes de congé en attente' },
+  { id: 'employes', label: 'Liste des employés' },
+]
+
 export default function AdminApprovalPage() {
   const [demandes, setDemandes] = useState([])
   const [inscriptions, setInscriptions] = useState([])
@@ -13,7 +19,7 @@ export default function AdminApprovalPage() {
   const [actionEnCours, setActionEnCours] = useState(null)
   const [employes, setEmployes] = useState([])
   const [loadingEmployes, setLoadingEmployes] = useState(false)
-  const [afficherEmployes, setAfficherEmployes] = useState(false)
+  const [ongletActif, setOngletActif] = useState('inscriptions')
   const { user, logout } = useAuth()
 
   function charger() {
@@ -36,12 +42,12 @@ export default function AdminApprovalPage() {
       .finally(() => setLoadingEmployes(false))
   }
 
-  function toggleEmployes() {
-    if (!afficherEmployes && employes.length === 0) {
+  useEffect(() => {
+    if (ongletActif === 'employes' && employes.length === 0) {
       chargerEmployes()
     }
-    setAfficherEmployes((prev) => !prev)
-  }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ongletActif])
 
   async function traiter(demande, decision) {
     setActionEnCours(`demande-${demande.id}`)
@@ -72,112 +78,144 @@ export default function AdminApprovalPage() {
   }
 
   return (
-    <div style={{ maxWidth: 640, margin: '2rem auto', fontFamily: 'sans-serif' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <h2>Panneau admin</h2>
-        <div>
-          <span style={{ marginRight: 12 }}>{user?.nom}</span>
-          <button onClick={logout}>Déconnexion</button>
+    <div className="page">
+      <div className="workspace" style={{ maxWidth: 760 }}>
+        <div className="topbar">
+          <div>
+            <span className="card-eyebrow">Panneau admin</span>
+            <h2>Gestion des congés</h2>
+          </div>
+          <div className="topbar-identity">
+            <span className="topbar-avatar">{(user?.nom || '?')[0]?.toUpperCase()}</span>
+            <span>{user?.nom}</span>
+            <button onClick={logout} className="btn btn-ghost btn-sm">Déconnexion</button>
+          </div>
         </div>
-      </div>
 
-      {loading && <p>Chargement...</p>}
-
-      {!loading && (
-        <>
-          <h3>Inscriptions en attente</h3>
-          {inscriptions.length === 0 && <p>Aucune inscription en attente.</p>}
-          {inscriptions.map((i) => (
-            <div key={i.id} style={{ border: '1px solid #ccc', borderRadius: 8, padding: 16, marginBottom: 12 }}>
-              <p><strong>{i.prenom} {i.nom}</strong> — {i.departement}</p>
-              <p>{i.email}</p>
+        <div className="tabs">
+          {ONGLETS.map((onglet) => {
+            const actif = ongletActif === onglet.id
+            let compteur = null
+            if (onglet.id === 'inscriptions') compteur = inscriptions.length
+            if (onglet.id === 'demandes') compteur = demandes.length
+            return (
               <button
-                disabled={actionEnCours === `inscription-${i.id}`}
-                onClick={() => traiterInscription(i, 'valider')}
-                style={{ marginRight: 8, padding: '8px 16px', color: 'black' }}
+                key={onglet.id}
+                onClick={() => setOngletActif(onglet.id)}
+                className={`tab${actif ? ' is-active' : ''}`}
               >
-                Valider
+                {onglet.label}
+                {compteur !== null && !loading && <span className="tab-count">{compteur}</span>}
               </button>
-              <button
-                disabled={actionEnCours === `inscription-${i.id}`}
-                onClick={() => traiterInscription(i, 'refuser')}
-                style={{ padding: '8px 16px', color: 'black' }}
-              >
-                Refuser
-              </button>
-            </div>
-          ))}
+            )
+          })}
+        </div>
 
-          <h3 style={{ marginTop: 32 }}>Demandes de congé en attente</h3>
-          {demandes.length === 0 && <p>Aucune demande en attente.</p>}
-          {demandes.map((d) => (
-            <div key={d.id} style={{ border: '1px solid #ccc', borderRadius: 8, padding: 16, marginBottom: 12 }}>
-              <p><strong>{d.employe}</strong> — {d.departement}</p>
-              <p>Du {d.date_debut} au {d.date_fin}</p>
-              {d.motif && (
-                <p style={{ overflowWrap: 'break-word', wordBreak: 'break-word' }}>
-                  {d.motif}
-                </p>
-              )}
-              <button
-                disabled={actionEnCours === `demande-${d.id}`}
-                onClick={() => traiter(d, 'approuve')}
-                style={{ marginRight: 8, padding: '8px 16px', color: 'black' }}
-              >
-                Approuver
-              </button>
-              <button
-                disabled={actionEnCours === `demande-${d.id}`}
-                onClick={() => traiter(d, 'refuser')}
-                style={{ padding: '8px 16px', color: 'black' }}
-              >
-                Refuser
-              </button>
-            </div>
-          ))}
+        {loading && <p className="loading-note">Chargement...</p>}
 
-          <h3 style={{ marginTop: 32 }}>Solde de congés des employés</h3>
+        {!loading && ongletActif === 'inscriptions' && (
+          <div className="item-list">
+            {inscriptions.length === 0 && (
+              <div className="empty-state">Aucune inscription en attente.</div>
+            )}
+            {inscriptions.map((i) => (
+              <div key={i.id} className="item-card">
+                <div className="item-body">
+                  <p className="item-name">{i.prenom} {i.nom}</p>
+                  <p className="item-meta">{i.departement}</p>
+                  <p className="item-meta">{i.email}</p>
+                  <span className="badge badge-pending" style={{ marginTop: 8 }}>En attente</span>
+                </div>
+                <div className="item-actions">
+                  <button
+                    disabled={actionEnCours === `inscription-${i.id}`}
+                    onClick={() => traiterInscription(i, 'valider')}
+                    className="btn btn-approve btn-sm"
+                  >
+                    Valider
+                  </button>
+                  <button
+                    disabled={actionEnCours === `inscription-${i.id}`}
+                    onClick={() => traiterInscription(i, 'refuser')}
+                    className="btn btn-refuse btn-sm"
+                  >
+                    Refuser
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
 
-          <button
-            onClick={toggleEmployes}
-            style={{ padding: '8px 16px', color: 'black', marginBottom: 12 }}
-          >
-            {afficherEmployes ? 'Masquer' : 'Afficher'} les soldes des employés
-          </button>
+        {!loading && ongletActif === 'demandes' && (
+          <div className="item-list">
+            {demandes.length === 0 && (
+              <div className="empty-state">Aucune demande en attente.</div>
+            )}
+            {demandes.map((d) => (
+              <div key={d.id} className="item-card">
+                <div className="item-body">
+                  <p className="item-name">{d.employe}</p>
+                  <p className="item-meta">{d.departement}</p>
+                  <p className="item-meta">Du {d.date_debut} au {d.date_fin}</p>
+                  {d.motif && <p className="item-motif">{d.motif}</p>}
+                  <span className="badge badge-pending" style={{ marginTop: 8 }}>En attente</span>
+                </div>
+                <div className="item-actions">
+                  <button
+                    disabled={actionEnCours === `demande-${d.id}`}
+                    onClick={() => traiter(d, 'approuve')}
+                    className="btn btn-approve btn-sm"
+                  >
+                    Approuver
+                  </button>
+                  <button
+                    disabled={actionEnCours === `demande-${d.id}`}
+                    onClick={() => traiter(d, 'refuser')}
+                    className="btn btn-refuse btn-sm"
+                  >
+                    Refuser
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
 
-          {afficherEmployes && (
-            <>
-              {loadingEmployes && <p>Chargement...</p>}
-              {!loadingEmployes && employes.length === 0 && <p>Aucun employé actif.</p>}
+        {!loading && ongletActif === 'employes' && (
+          <>
+            {loadingEmployes && <p className="loading-note">Chargement...</p>}
+            {!loadingEmployes && employes.length === 0 && (
+              <div className="empty-state">Aucun employé actif.</div>
+            )}
 
-              {!loadingEmployes && employes.length > 0 && (
-                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            {!loadingEmployes && employes.length > 0 && (
+              <div className="table-wrap">
+                <table className="data-table">
                   <thead>
                     <tr>
-                      <th style={{ textAlign: 'left', borderBottom: '1px solid #ccc', padding: '8px 4px' }}>Nom</th>
-                      <th style={{ textAlign: 'left', borderBottom: '1px solid #ccc', padding: '8px 4px' }}>Prénom</th>
-                      <th style={{ textAlign: 'left', borderBottom: '1px solid #ccc', padding: '8px 4px' }}>Département</th>
-                      <th style={{ textAlign: 'right', borderBottom: '1px solid #ccc', padding: '8px 4px' }}>Solde restant</th>
+                      <th>Nom</th>
+                      <th>Prénom</th>
+                      <th>Département</th>
+                      <th style={{ textAlign: 'right' }}>Solde restant</th>
                     </tr>
                   </thead>
                   <tbody>
                     {employes.map((e) => (
                       <tr key={e.id}>
-                        <td style={{ padding: '8px 4px', borderBottom: '1px solid #eee' }}>{e.nom}</td>
-                        <td style={{ padding: '8px 4px', borderBottom: '1px solid #eee' }}>{e.prenom}</td>
-                        <td style={{ padding: '8px 4px', borderBottom: '1px solid #eee' }}>{e.departement}</td>
-                        <td style={{ padding: '8px 4px', borderBottom: '1px solid #eee', textAlign: 'right' }}>
-                          {e.conge} j.
-                        </td>
+                        <td>{e.nom}</td>
+                        <td>{e.prenom}</td>
+                        <td>{e.departement}</td>
+                        <td className="num">{e.conge} j.</td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
-              )}
-            </>
-          )}
-        </>
-      )}
+              </div>
+            )}
+          </>
+        )}
+      </div>
     </div>
   )
 }

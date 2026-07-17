@@ -37,75 +37,89 @@ export default function LeaveRequestForm() {
     }
   }
 
+  const initiales = `${user?.prenom?.[0] || ''}${user?.nom?.[0] || ''}`.toUpperCase()
+
   return (
-    <div style={{ maxWidth: 480, margin: '2rem auto', fontFamily: 'sans-serif' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <h2>Demande de congé</h2>
-        <button onClick={logout} style={{ height: 32 }}>Déconnexion</button>
+    <div className="page">
+      <div className="workspace">
+        <div className="topbar">
+          <div>
+            <span className="card-eyebrow">Espace employé</span>
+            <h2>Demande de congé</h2>
+          </div>
+          <button onClick={logout} className="btn btn-ghost btn-sm">Déconnexion</button>
+        </div>
+
+        <div className="card">
+          <div className="topbar-identity" style={{ marginBottom: 24 }}>
+            <span className="topbar-avatar">{initiales || '?'}</span>
+            <span>
+              Connecté en tant que <strong style={{ color: 'var(--ink)' }}>{user?.prenom} {user?.nom}</strong> — {user?.departement}
+            </span>
+          </div>
+
+          <form onSubmit={handleSubmit}>
+            <div className="field-row">
+              <div className="field">
+                <label>Date de début</label>
+                <input
+                  className="input"
+                  type="date"
+                  name="dateDebut"
+                  value={formData.dateDebut}
+                  onChange={handleChange}
+                  onKeyDown={(e) => e.preventDefault()}
+                  onClick={(e) => e.target.showPicker()}
+                  min={new Date().toISOString().split('T')[0]}
+                  required
+                />
+              </div>
+
+              <div className="field">
+                <label>Date de fin</label>
+                <input
+                  className="input"
+                  type="date"
+                  name="dateFin"
+                  value={formData.dateFin}
+                  onChange={handleChange}
+                  onKeyDown={(e) => e.preventDefault()}
+                  onClick={(e) => e.target.showPicker()}
+                  min={formData.dateDebut || new Date().toISOString().split('T')[0]}
+                  required
+                />
+              </div>
+            </div>
+
+            <div className="field">
+              <label>Motif</label>
+              <textarea
+                className="input"
+                name="motif"
+                value={formData.motif}
+                onChange={handleChange}
+                rows={3}
+                placeholder="Précisez le motif de votre demande (optionnel)"
+              />
+              <span className="field-hint">Votre demande sera vérifiée automatiquement, puis transmise à votre manager.</span>
+            </div>
+
+            <button type="submit" className="btn btn-primary" disabled={status === 'loading'} style={{ marginTop: 8 }}>
+              {status === 'loading' ? 'Envoi en cours...' : 'Soumettre la demande'}
+            </button>
+          </form>
+
+          {status === 'success' && (
+            <p className="alert alert-success">
+              Demande soumise avec succès ! Instance <span className="instance-tag">{instanceKey}</span>
+            </p>
+          )}
+
+          {status === 'error' && (
+            <p className="alert alert-error">Erreur : {errorMessage}</p>
+          )}
+        </div>
       </div>
-
-      <p style={{ color: '#555' }}>
-        Connecté en tant que <strong>{user?.prenom} {user?.nom}</strong> ({user?.departement})
-      </p>
-
-      <form onSubmit={handleSubmit}>
-        <div style={{ display: 'flex', gap: 16, marginBottom: 12 }}>
-          <div style={{ marginBottom: 12 }}>
-            <label>Date de début</label>
-            <input
-              type="date"
-              name="dateDebut"
-              value={formData.dateDebut}
-              onChange={handleChange}
-              onKeyDown={(e) => e.preventDefault()}
-              onClick={(e) => e.target.showPicker()}
-              min={new Date().toISOString().split('T')[0]}
-              required
-              style={{ width: '100%' }}
-            />
-          </div>
-
-          <div style={{ marginBottom: 12 }}>
-            <label>Date de fin</label>
-            <input
-              type="date"
-              name="dateFin"
-              value={formData.dateFin}
-              onChange={handleChange}
-              onKeyDown={(e) => e.preventDefault()}
-              onClick={(e) => e.target.showPicker()}
-              min={formData.dateDebut || new Date().toISOString().split('T')[0]}
-              required
-              style={{ width: '100%' }}
-            />
-          </div>
-        </div>
-
-        <div style={{ marginBottom: 12 }}>
-          <label>Motif</label>
-          <textarea
-            name="motif"
-            value={formData.motif}
-            onChange={handleChange}
-            rows={3}
-            style={{ width: '100%', padding: 8 }}
-          />
-        </div>
-
-        <button type="submit" disabled={status === 'loading'} style={{ padding: '10px 20px', color: 'black' }}>
-          {status === 'loading' ? 'Envoi en cours...' : 'Soumettre la demande'}
-        </button>
-      </form>
-
-      {status === 'success' && (
-        <p style={{ color: 'green', marginTop: 16 }}>
-          Demande soumise avec succès ! (Instance : {instanceKey})
-        </p>
-      )}
-
-      {status === 'error' && (
-        <p style={{ color: 'red', marginTop: 16 }}>Erreur : {errorMessage}</p>
-      )}
     </div>
   )
 }

@@ -51,47 +51,58 @@ export default function LoginPage() {
   }
 
   return (
-    <div style={{ maxWidth: 380, margin: '4rem auto', fontFamily: 'sans-serif' }}>
-      <h2>Connexion</h2>
-      <form onSubmit={handleSubmit} autoComplete="off">
-        <div style={{ marginBottom: 12 }}>
-          <label>Email (employé) ou identifiant (admin)</label>
-          <input
-            type="text"
-            name={`login-id-${fieldSuffix.current}`}
-            value={identifiant}
-            onChange={(e) => setIdentifiant(e.target.value)}
-            onFocus={() => setIdentifiantLocked(false)}
-            readOnly={identifiantLocked}
-            autoComplete="off"
-            required
-            style={{ width: '100%', padding: 8 }}
-          />
+    <div className="page page--center">
+        <div className="card">
+          <span className="card-eyebrow">Congés</span>
+          <h2>Connexion</h2>
+          <p className="card-subtitle">Accédez à votre espace employé ou admin.</p>
+
+          <form onSubmit={handleSubmit} autoComplete="off">
+            <div className="field">
+              <label htmlFor="login-id">Email (employé) ou identifiant (admin)</label>
+              <input
+                id="login-id"
+                className="input"
+                type="text"
+                name={`login-id-${fieldSuffix.current}`}
+                value={identifiant}
+                onChange={(e) => setIdentifiant(e.target.value)}
+                onFocus={() => setIdentifiantLocked(false)}
+                readOnly={identifiantLocked}
+                autoComplete="off"
+                required
+              />
+            </div>
+            <div className="field">
+              <label htmlFor="login-pwd">Mot de passe</label>
+              <input
+                id="login-pwd"
+                className="input"
+                type="password"
+                name={`login-pwd-${fieldSuffix.current}`}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                onFocus={() => setPasswordLocked(false)}  
+                readOnly={passwordLocked}
+                autoComplete="new-password"
+                required
+              />
+            </div>
+
+            {error && <p className="alert alert-error">{error}</p>}
+
+            <button type="submit" className="btn btn-primary btn-block" disabled={loading} style={{ marginTop: 4 }}>
+              {loading ? 'Connexion...' : 'Se connecter'}
+            </button>
+          </form>
+
+          <p style={{ marginTop: 20, fontSize: 14 }}>
+            <Link to="/register">Créer un compte</Link>
+          </p>
         </div>
-        <div style={{ marginBottom: 20 }}>
-          <label>Mot de passe</label>
-          <input
-            type="password"
-            name={`login-pwd-${fieldSuffix.current}`}
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            onFocus={() => setPasswordLocked(false)}
-            readOnly={passwordLocked}
-            autoComplete="new-password"
-            required
-            style={{ width: '100%', padding: 8 }}
-          />
-        </div>
-        {error && <p style={{ color: 'red' }}>{error}</p>}
-        <button type="submit" disabled={loading} style={{ padding: '10px 20px', color: 'black' }}>
-          {loading ? 'Connexion...' : 'Se connecter'}
-        </button>
-      </form>
-      <p style={{ marginTop: 16 }}>
-        <Link to="/register">Créer un compte</Link>
-      </p>
     </div>
   )
 }
+
 
 
