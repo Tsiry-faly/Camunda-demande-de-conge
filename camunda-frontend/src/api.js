@@ -34,12 +34,21 @@ export async function fetchDemandesEnAttente() {
   return data
 }
 
-export async function approuverDemande(taskId) {
-  await api.post(`/api/demandes/${taskId}/approuver`)
+export async function approuverDemande(taskId, processInstanceKey) {
+  await api.post(`/api/demandes/${taskId}/approuver`, { process_instance_key: processInstanceKey })
 }
 
-export async function refuserDemande(taskId) {
-  await api.post(`/api/demandes/${taskId}/refuser`)
+export async function refuserDemande(taskId, processInstanceKey) {
+  await api.post(`/api/demandes/${taskId}/refuser`, { process_instance_key: processInstanceKey })
+}
+
+export async function fetchMesNotifications() {
+  const { data } = await api.get('/api/mes-notifications')
+  return data
+}
+
+export async function marquerNotificationVue(demandeId) {
+  await api.post(`/api/notifications/${demandeId}/vu`)
 }
 
 export async function register(payload) {

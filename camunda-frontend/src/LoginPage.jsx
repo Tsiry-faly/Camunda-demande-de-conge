@@ -53,7 +53,7 @@ export default function LoginPage() {
   return (
     <div className="page page--center">
         <div className="card">
-          <span className="card-eyebrow">Congés</span>
+          <span className="card-eyebrow">Demande de congés</span>
           <h2>Connexion</h2>
           <p className="card-subtitle">Accédez à votre espace employé ou admin.</p>
 

@@ -139,10 +139,12 @@ def demandes_en_attente():
                     "date_fin": row["date_fin"],
                     "motif": row["motif"],
                     "task_id": t["userTaskKey"],
+                    "process_instance_key": row["process_instance_key"],
                 }
             )
     conn.close()
     return jsonify(resultats)
+
 
 @app.route("/api/inscriptions-en-attente", methods=["GET"])
 @login_required(role="admin")
@@ -169,7 +171,9 @@ def valider_inscription(employe_id):
 @login_required(role="admin")
 def refuser_inscription(employe_id):
     conn = get_db()
-    conn.execute("DELETE FROM employes WHERE id = ? AND statut = 'en_attente'", (employe_id,))
+    conn.execute(
+        "DELETE FROM employes WHERE id = ? AND statut = 'en_attente'", (employe_id,)
+    )
     conn.commit()
     conn.close()
     return jsonify({"ok": True})
@@ -183,36 +187,91 @@ def _traiter_demande(task_id, decision):
     return r.ok, r.text
 
 
+def _marquer_statut(process_instance_key, statut):
+    """Enregistre l'issue de la decision admin pour la notification employe."""
+    if not process_instance_key:
+        return
+    conn = get_db()
+    conn.execute(
+        """UPDATE demandes
+           SET statut = ?, vu = 0, updated_at = CURRENT_TIMESTAMP
+           WHERE process_instance_key = ?""",
+        (statut, str(process_instance_key)),
+    )
+    conn.commit()
+    conn.close()
+
+
 @app.route("/api/demandes/<task_id>/approuver", methods=["POST"])
 @login_required(role="admin")
 def approuver(task_id):
+    process_instance_key = (request.json or {}).get("process_instance_key")
     ok, err = _traiter_demande(
         task_id, "approuve"
     )  # valeur exacte attendue par le gateway
+    if ok:
+        _marquer_statut(process_instance_key, "approuve")
     return (jsonify({"ok": True}), 200) if ok else (jsonify({"error": err}), 500)
 
 
 @app.route("/api/demandes/<task_id>/refuser", methods=["POST"])
 @login_required(role="admin")
 def refuser(task_id):
+    process_instance_key = (request.json or {}).get("process_instance_key")
     ok, err = _traiter_demande(
         task_id, "refuser"
     )  # valeur exacte attendue par le gateway
+    if ok:
+        _marquer_statut(process_instance_key, "refuse_admin")
     return (jsonify({"ok": True}), 200) if ok else (jsonify({"error": err}), 500)
+
+
+@app.route("/api/mes-notifications", methods=["GET"])
+@login_required(role="employe")
+def mes_notifications():
+    """Demandes de l'employe connecte dont l'issue est connue et pas encore vue :
+    refus automatique (solde), refus admin, ou approbation."""
+    from flask import session
+
+    conn = get_db()
+    rows = conn.execute(
+        """SELECT id, date_debut, date_fin, statut, solde_restant, updated_at
+           FROM demandes
+           WHERE employe_id = ? AND statut != 'en_attente' AND vu = 0
+           ORDER BY updated_at DESC""",
+        (session["user_id"],),
+    ).fetchall()
+    conn.close()
+    return jsonify([dict(r) for r in rows])
+
+
+@app.route("/api/notifications/<int:demande_id>/vu", methods=["POST"])
+@login_required(role="employe")
+def marquer_notification_vue(demande_id):
+    from flask import session
+
+    conn = get_db()
+    conn.execute(
+        "UPDATE demandes SET vu = 1 WHERE id = ? AND employe_id = ?",
+        (demande_id, session["user_id"]),
+    )
+    conn.commit()
+    conn.close()
+    return jsonify({"ok": True})
+
 
 @app.route("/api/employes", methods=["GET"])
 @login_required(role="admin")
 def liste_employes():
     """Vue d'ensemble des employes actifs et de leur solde de conges restant."""
     conn = get_db()
-    rows = conn.execute(
-        """SELECT id, nom, prenom, departement, conge
+    rows = conn.execute("""SELECT id, nom, prenom, departement, conge
            FROM employes
            WHERE statut = 'actif'
-           ORDER BY departement, nom, prenom"""
-    ).fetchall()
+           ORDER BY departement, nom, prenom""").fetchall()
     conn.close()
     return jsonify([dict(r) for r in rows])
+
 
 if __name__ == "__main__":
     app.run(port=5000, debug=True)

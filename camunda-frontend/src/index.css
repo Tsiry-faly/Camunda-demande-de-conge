@@ -334,6 +334,66 @@ textarea.input {
 .badge-refused { background: var(--clay-tint); color: var(--clay); }
 
 /* ==========================================================================
+   Notifications (page employe : resultat d'une demande)
+   ========================================================================== */
+.notification-stack {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  z-index: 50;
+  max-width: 340px;
+}
+
+.notification-toast {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  background: #fff;
+  border: 1px solid var(--line, #e5e5e5);
+  border-left: 4px solid currentColor;
+  border-radius: 10px;
+  padding: 12px 14px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+  animation: notification-in 0.2s ease-out;
+}
+
+.notification-toast.success { color: var(--moss); }
+.notification-toast.error { color: var(--clay); }
+
+.notification-toast-body { flex: 1; }
+
+.notification-toast-title {
+  font-weight: 600;
+  font-size: 13.5px;
+  color: var(--ink);
+  margin: 0 0 2px;
+}
+
+.notification-toast-text {
+  font-size: 13px;
+  color: var(--ink-soft, #555);
+  margin: 0;
+}
+
+.notification-toast-close {
+  background: none;
+  border: none;
+  color: var(--ink-soft, #999);
+  cursor: pointer;
+  font-size: 15px;
+  line-height: 1;
+  padding: 2px;
+}
+
+@keyframes notification-in {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ==========================================================================
    Tabs (admin panel)
    ========================================================================== */
 .tabs {

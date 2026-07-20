@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { submitLeaveRequest } from './api'
+import { useEffect, useState } from 'react'
+import { submitLeaveRequest, fetchMesNotifications, marquerNotificationVue } from './api'
 import { useAuth } from './AuthContext'
 import { departementLabel } from './departements'
 
@@ -9,12 +9,74 @@ const initialState = {
   motif: '',
 }
 
+// Toutes les 5s, on demande au backend si une demande a ete tranchee
+// (refus automatique par manque de solde, refus admin, ou approbation).
+const INTERVALLE_NOTIFICATIONS_MS = 5000
+
+const NOTIFICATION_CONFIG = {
+  approuve: {
+    type: 'success',
+    titre: 'Demande approuvée',
+    texte: (n) => `Votre demande du ${n.date_debut} au ${n.date_fin} a été approuvée.`,
+  },
+  refuse_admin: {
+    type: 'error',
+    titre: 'Demande refusée',
+    texte: (n) => `Votre demande du ${n.date_debut} au ${n.date_fin} a été refusée par votre manager.`,
+  },
+  refuse_solde: {
+    type: 'error',
+    titre: 'Demande refusée automatiquement',
+    texte: (n) =>
+      `Solde de congés insuffisant pour la demande du ${n.date_debut} au ${n.date_fin}` +
+      (n.solde_restant != null ? ` (il vous reste ${n.solde_restant} jour(s)).` : '.'),
+  },
+}
+
 export default function LeaveRequestForm() {
   const { user, logout } = useAuth()
   const [formData, setFormData] = useState(initialState)
   const [status, setStatus] = useState('idle') // idle | loading | success | error
   const [errorMessage, setErrorMessage] = useState('')
   const [instanceKey, setInstanceKey] = useState(null)
+  const [notifications, setNotifications] = useState([])
+
+  useEffect(() => {
+    let annule = false
+
+    async function verifier() {
+      try {
+        const data = await fetchMesNotifications()
+        if (!annule && data.length > 0) {
+          // Evite de dupliquer un toast deja affiche (avant que l'utilisateur
+          // ne l'ait ferme, ce qui declenche le marquage "vu" cote serveur).
+          setNotifications((prev) => {
+            const idsConnus = new Set(prev.map((n) => n.id))
+            const nouvelles = data.filter((n) => !idsConnus.has(n.id))
+            return nouvelles.length > 0 ? [...prev, ...nouvelles] : prev
+          })
+        }
+      } catch (err) {
+        console.error('Erreur lors de la vérification des notifications', err)
+      }
+    }
+
+    verifier()
+    const intervalId = setInterval(verifier, INTERVALLE_NOTIFICATIONS_MS)
+    return () => {
+      annule = true
+      clearInterval(intervalId)
+    }
+  }, [])
+
+  async function fermerNotification(id) {
+    setNotifications((prev) => prev.filter((n) => n.id !== id))
+    try {
+      await marquerNotificationVue(id)
+    } catch (err) {
+      console.error('Erreur lors du marquage de la notification comme vue', err)
+    }
+  }
 
   function handleChange(e) {
     const { name, value } = e.target
@@ -42,6 +104,30 @@ export default function LeaveRequestForm() {
 
   return (
     <div className="page">
+      {notifications.length > 0 && (
+        <div className="notification-stack">
+          {notifications.map((n) => {
+            const config = NOTIFICATION_CONFIG[n.statut]
+            if (!config) return null
+            return (
+              <div key={n.id} className={`notification-toast ${config.type}`}>
+                <div className="notification-toast-body">
+                  <p className="notification-toast-title">{config.titre}</p>
+                  <p className="notification-toast-text">{config.texte(n)}</p>
+                </div>
+                <button
+                  className="notification-toast-close"
+                  onClick={() => fermerNotification(n.id)}
+                  aria-label="Fermer la notification"
+                >
+                  ×
+                </button>
+              </div>
+            )
+          })}
+        </div>
+      )}
+
       <div className="workspace">
         <div className="topbar">
           <div>

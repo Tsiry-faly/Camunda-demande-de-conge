@@ -54,9 +54,9 @@ export default function AdminApprovalPage() {
     setActionEnCours(`demande-${demande.id}`)
     try {
       if (decision === 'approuve') {
-        await approuverDemande(demande.task_id)
+        await approuverDemande(demande.task_id, demande.process_instance_key)
       } else {
-        await refuserDemande(demande.task_id)
+        await refuserDemande(demande.task_id, demande.process_instance_key)
       }
       charger()
     } finally {
