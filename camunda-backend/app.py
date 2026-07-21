@@ -3,6 +3,7 @@ from flask_cors import CORS
 import requests
 import sqlite3
 import time
+from datetime import datetime
 
 from auth import auth_bp, login_required, DB_PATH
 
@@ -202,6 +203,27 @@ def _marquer_statut(process_instance_key, statut):
     conn.close()
 
 
+def _decrementer_solde(process_instance_key):
+    """Décrémente le solde de congés de l'employé une fois la demande approuvée."""
+    if not process_instance_key:
+        return
+    conn = get_db()
+    row = conn.execute(
+        "SELECT employe_id, date_debut, date_fin FROM demandes WHERE process_instance_key = ?",
+        (str(process_instance_key),),
+    ).fetchone()
+    if row:
+        d1 = datetime.strptime(row["date_debut"], "%Y-%m-%d")
+        d2 = datetime.strptime(row["date_fin"], "%Y-%m-%d")
+        jours = (d2 - d1).days + 1
+        conn.execute(
+            "UPDATE employes SET conge = conge - ? WHERE id = ?",
+            (jours, row["employe_id"]),
+        )
+        conn.commit()
+    conn.close()
+
+
 @app.route("/api/demandes/<task_id>/approuver", methods=["POST"])
 @login_required(role="admin")
 def approuver(task_id):
@@ -211,6 +233,7 @@ def approuver(task_id):
     )  # valeur exacte attendue par le gateway
     if ok:
         _marquer_statut(process_instance_key, "approuve")
+        _decrementer_solde(process_instance_key)
     return (jsonify({"ok": True}), 200) if ok else (jsonify({"error": err}), 500)
 
 
