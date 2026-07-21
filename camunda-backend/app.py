@@ -296,5 +296,16 @@ def liste_employes():
     return jsonify([dict(r) for r in rows])
 
 
+@app.route("/api/reset-soldes", methods=["POST"])
+@login_required(role="admin")
+def reset_soldes():
+    conn = get_db()
+    conn.execute("UPDATE employes SET conge = 25 WHERE statut = 'actif'")
+    nb = conn.total_changes
+    conn.commit()
+    conn.close()
+    return jsonify({"ok": True, "nb_employes": nb})
+
+
 if __name__ == "__main__":
     app.run(port=5000, debug=True)

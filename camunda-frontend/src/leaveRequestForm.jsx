@@ -48,8 +48,6 @@ export default function LeaveRequestForm() {
       try {
         const data = await fetchMesNotifications()
         if (!annule && data.length > 0) {
-          // Evite de dupliquer un toast deja affiche (avant que l'utilisateur
-          // ne l'ait ferme, ce qui declenche le marquage "vu" cote serveur).
           setNotifications((prev) => {
             const idsConnus = new Set(prev.map((n) => n.id))
             const nouvelles = data.filter((n) => !idsConnus.has(n.id))

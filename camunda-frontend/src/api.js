@@ -69,4 +69,9 @@ export async function refuserInscription(employeId) {
   await api.post(`/api/inscriptions/${employeId}/refuser`)
 }
 
+export async function resetSoldes() {
+  const { data } = await api.post('/api/reset-soldes')
+  return data
+}
+
 export default api

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import {
   fetchDemandesEnAttente, approuverDemande, refuserDemande,
   fetchInscriptionsEnAttente, validerInscription, refuserInscription,
-  fetchEmployes,
+  fetchEmployes, resetSoldes,
 } from './api'
 import { useAuth } from './AuthContext'
 import { departementLabel } from './departements'
@@ -21,6 +21,7 @@ export default function AdminApprovalPage() {
   const [employes, setEmployes] = useState([])
   const [loadingEmployes, setLoadingEmployes] = useState(false)
   const [ongletActif, setOngletActif] = useState('inscriptions')
+  const [resetEnCours, setResetEnCours] = useState(false)
   const { user, logout } = useAuth()
 
   function charger() {
@@ -42,6 +43,19 @@ export default function AdminApprovalPage() {
       .catch((err) => console.error(err))
       .finally(() => setLoadingEmployes(false))
   }
+
+  async function handleResetSoldes() {
+    if (!window.confirm('Réinitialiser le solde de tous les employés actifs à 25 jours ?')) {
+      return
+    }
+    setResetEnCours(true)
+    try {
+      await resetSoldes()
+      chargerEmployes()
+    } finally {
+      setResetEnCours(false)
+    }
+  }   
 
   useEffect(() => {
     if (ongletActif === 'employes' && employes.length === 0) {
@@ -185,6 +199,15 @@ export default function AdminApprovalPage() {
 
         {!loading && ongletActif === 'employes' && (
           <>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 12 }}>
+              <button
+                onClick={handleResetSoldes}
+                disabled={resetEnCours}
+                className="btn btn-ghost btn-sm"
+              >
+                {resetEnCours ? 'Réinitialisation...' : 'Réinitialiser les soldes (25 j.)'}
+              </button>
+            </div>
             {loadingEmployes && <p className="loading-note">Chargement...</p>}
             {!loadingEmployes && employes.length === 0 && (
               <div className="empty-state">Aucun employé actif.</div>
