@@ -1,27 +1,40 @@
 {
   "components": [
     {
-      "label": "NOM",
+      "label": "Nom",
       "type": "textfield",
       "layout": {
-        "row": "Row_16r24ce",
+        "row": "Row_0dfn0ah",
         "columns": null
       },
-      "id": "Field_0kz0v96",
+      "id": "Field_0r7zbnn",
       "key": "nom",
       "validate": {
         "required": true
       }
     },
     {
-      "label": "Prénoms",
+      "label": "Prénom",
       "type": "textfield",
       "layout": {
-        "row": "Row_0nqjbm1",
+        "row": "Row_0hffg9o",
         "columns": null
       },
-      "id": "Field_1pbhk8h",
+      "id": "Field_0em5yg9",
       "key": "prenom",
+      "validate": {
+        "required": true
+      }
+    },
+    {
+      "label": "Mail",
+      "type": "textfield",
+      "layout": {
+        "row": "Row_1dhmbyz",
+        "columns": null
+      },
+      "id": "Field_0gg1a00",
+      "key": "mail",
       "validate": {
         "required": true
       }
@@ -52,56 +65,49 @@
       ],
       "type": "select",
       "layout": {
-        "row": "Row_1hauahd",
+        "row": "Row_1lm3hap",
         "columns": null
       },
-      "id": "Field_19wux98",
+      "id": "Field_1qsltzz",
       "key": "departement",
       "validate": {
         "required": true
       }
     },
     {
-      "subtype": "date",
-      "dateLabel": "Date de debut",
-      "type": "datetime",
+      "label": "Mot de passe",
+      "type": "textfield",
       "layout": {
-        "row": "Row_0x9kzuv",
+        "row": "Row_0437ond",
         "columns": null
       },
-      "id": "Field_1m61kc4",
-      "key": "dateDebut",
+      "id": "Field_1o81tx7",
+      "key": "motDePasse",
       "validate": {
-        "required": true
+        "required": true,
+        "minLength": "8"
       }
     },
     {
-      "subtype": "date",
-      "dateLabel": "Date de fin",
-      "type": "datetime",
+      "label": "Confirmer le mot de passe",
+      "type": "textfield",
       "layout": {
-        "row": "Row_0x9kzuv",
+        "row": "Row_0437ond",
         "columns": null
       },
-      "id": "Field_1j8atwp",
-      "key": "dateFin",
+      "id": "Field_1082uio",
+      "key": "confirmeMotDePasse",
       "validate": {
-        "required": true
-      }
-    },
-    {
-      "label": "Motif",
-      "type": "textarea",
-      "layout": {
-        "row": "Row_0l5upvs",
-        "columns": null
+        "required": true,
+        "minLength": "8"
       },
-      "id": "Field_0vds7z5",
-      "key": "motif"
+      "conditional": {
+        "hide": "=confirmeMotDePasse = motDePasse"
+      }
     }
   ],
   "type": "default",
-  "id": "demande-conge",
+  "id": "inscription_form",
   "executionPlatform": "Camunda Cloud",
   "executionPlatformVersion": "8.10.0",
   "exporter": {

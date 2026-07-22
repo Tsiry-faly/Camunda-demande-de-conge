@@ -1,0 +1,36 @@
+{
+  "components": [
+    {
+      "label": "Select",
+      "values": [
+        {
+          "label": "Approuver",
+          "value": "approuver"
+        },
+        {
+          "label": "Réfuser",
+          "value": "refuser"
+        }
+      ],
+      "type": "select",
+      "layout": {
+        "row": "Row_0scbo34",
+        "columns": null
+      },
+      "id": "Field_0z7k62e",
+      "key": "select",
+      "validate": {
+        "required": true
+      }
+    }
+  ],
+  "type": "default",
+  "id": "approbation_inscription_form",
+  "executionPlatform": "Camunda Cloud",
+  "executionPlatformVersion": "8.10.0",
+  "exporter": {
+    "name": "Camunda Modeler",
+    "version": "5.48.0"
+  },
+  "schemaVersion": 19
+}

@@ -56,7 +56,7 @@ export default function RegisterPage() {
       <div className="page page--center">
         <div className="workspace" style={{ maxWidth: 440 }}>
           <div className="card" style={{ textAlign: 'center' }}>
-            <span className="card-eyebrow">Congés</span>
+            <span className="card-eyebrow">Demande de congés</span>
             <h2>Inscription envoyée</h2>
             <p className="card-subtitle" style={{ marginTop: 8 }}>
               Votre compte a été créé et est en attente de validation par un administrateur.
@@ -75,7 +75,7 @@ export default function RegisterPage() {
     <div className="page">
       <div className="workspace" style={{ maxWidth: 460 }}>
         <div className="card">
-          <span className="card-eyebrow">Congés</span>
+          <span className="card-eyebrow">Demande de congés</span>
           <h2>Créer un compte</h2>
           <p className="card-subtitle">Votre compte sera activé après validation par un administrateur.</p>
 

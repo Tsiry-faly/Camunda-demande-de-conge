@@ -1,0 +1,66 @@
+{
+  "components": [
+    {
+      "label": "Nom",
+      "type": "textfield",
+      "layout": {
+        "row": "Row_0m2dhya",
+        "columns": null
+      },
+      "id": "Field_1fus807",
+      "key": "nom",
+      "validate": {
+        "required": true
+      }
+    },
+    {
+      "label": "Prénom",
+      "type": "textfield",
+      "layout": {
+        "row": "Row_1f7icff",
+        "columns": null
+      },
+      "id": "Field_08lz9r3",
+      "key": "prenom",
+      "validate": {
+        "required": true
+      }
+    },
+    {
+      "label": "Mail",
+      "type": "textfield",
+      "layout": {
+        "row": "Row_06n5pdl",
+        "columns": null
+      },
+      "id": "Field_0cbxmj8",
+      "key": "mail",
+      "validate": {
+        "required": true
+      },
+      "properties": {}
+    },
+    {
+      "label": "Mot de passe",
+      "type": "textfield",
+      "layout": {
+        "row": "Row_0017gy9",
+        "columns": null
+      },
+      "id": "Field_04nm0to",
+      "key": "motDePasse",
+      "validate": {
+        "required": true
+      }
+    }
+  ],
+  "type": "default",
+  "id": "login_form",
+  "executionPlatform": "Camunda Cloud",
+  "executionPlatformVersion": "8.10.0",
+  "exporter": {
+    "name": "Camunda Modeler",
+    "version": "5.48.0"
+  },
+  "schemaVersion": 19
+}

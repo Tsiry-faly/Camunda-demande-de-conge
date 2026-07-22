@@ -4,7 +4,7 @@ from datetime import datetime
 from pyzeebe import ZeebeWorker, create_insecure_channel, Job
 
 
-def check_leave_balance(
+def verification_BD(
     nom: str, prenom: str, departement: str, dateDebut: str, dateFin: str
 ):
     conn = sqlite3.connect("conges.db")
@@ -57,7 +57,7 @@ def notify_refusal(job: Job, nom: str, prenom: str, soldeRestant: int):
 async def main():
     channel = create_insecure_channel(grpc_address="localhost:26500")
     worker = ZeebeWorker(channel)
-    worker.task(task_type="check_leave_balance")(check_leave_balance)
+    worker.task(task_type="verification_BD")(verification_BD)
     worker.task(task_type="notify-refusal")(notify_refusal)
     print("Worker démarré, en attente de tâches...", flush=True)
 
