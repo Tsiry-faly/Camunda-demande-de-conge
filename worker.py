@@ -2,7 +2,7 @@ import sqlite3
 import asyncio
 from datetime import datetime
 from pyzeebe import ZeebeWorker, create_insecure_channel, Job
-from werkzeug.security import generate_password_hash
+from werkzeug.security import generate_password_hash, check_password_hash
 
 
 def verification_BD(
@@ -91,8 +91,6 @@ def authentification(mail: str, motDePasse: str):
         (mail,),
     ).fetchone()
     conn.close()
-
-    from werkzeug.security import check_password_hash
 
     if not row or not check_password_hash(row[0], motDePasse):
         raise ValueError(f"Authentification invalide pour {mail}")
