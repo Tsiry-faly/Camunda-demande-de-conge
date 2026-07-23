@@ -6,6 +6,13 @@ import time
 from datetime import datetime
 
 from auth import auth_bp, login_required, DB_PATH
+from camunda_client import (
+    find_user_task,
+    assign_task,
+    complete_task,
+    search_user_tasks,
+    get_task_variables,
+)
 
 app = Flask(__name__)
 
@@ -22,7 +29,7 @@ CORS(app, supports_credentials=True, origins=["http://localhost:5173"])
 app.register_blueprint(auth_bp)
 
 CAMUNDA_BASE = "http://localhost:8080/v2"
-TASK_APPROBATION_ELEMENT_ID = "Activity_156jd4g"  # id BPMN de "Approuver / refuser"
+TASK_APPROBATION_ELEMENT_ID = "approuverRefuser"  # anciennement Activity_156jd4g
 
 
 def get_db():
@@ -49,46 +56,24 @@ def start_leave_request():
         "motif": body.get("motif", ""),
     }
 
-    # 1. Demarrer l'instance
-    r = requests.post(
-        f"{CAMUNDA_BASE}/process-instances",
-        json={"processDefinitionId": "Process_0ul30q6"},
-    )
-    r.raise_for_status()
-    instance = r.json()
-    process_instance_key = instance["processInstanceKey"]
+    # Depuis le nouveau diagramme, la tache "Remplir la demande" fait deja
+    # partie de l'instance ouverte au login (Login -> Remplir la demande) :
+    # on ne demarre plus de nouvelle instance ici, on reutilise celle-la.
+    process_instance_key = session.get("process_instance_key")
+    if not process_instance_key:
+        return jsonify({"error": "Session Camunda introuvable, reconnectez-vous"}), 400
 
-    # 2. Chercher la tache "Remplir la demande" associee
-    time.sleep(1)
-    r = requests.post(
-        f"{CAMUNDA_BASE}/user-tasks/search", json={"filter": {"state": "CREATED"}}
-    )
-    r.raise_for_status()
-    tasks = r.json()["items"]
-    task = next(
-        (t for t in tasks if t["processInstanceKey"] == process_instance_key),
-        None,
-    )
-
+    task = find_user_task(process_instance_key, "remplirDemande")
     if not task:
-        return jsonify({"error": "Tache introuvable"}), 500
+        return jsonify({"error": "Tache 'Remplir la demande' introuvable"}), 500
 
     task_key = task["userTaskKey"]
+    assign_task(task_key, f"{variables['prenom']} {variables['nom']}")
+    ok, err = complete_task(task_key, variables)
+    if not ok:
+        return jsonify({"error": err}), 500
 
-    # 3. S'assigner la tache
-    requests.post(
-        f"{CAMUNDA_BASE}/user-tasks/{task_key}/assignment",
-        json={"assignee": f"{variables['prenom']} {variables['nom']}"},
-    )
-
-    # 4. Completer la tache avec les variables du formulaire
-    r = requests.post(
-        f"{CAMUNDA_BASE}/user-tasks/{task_key}/completion",
-        json={"variables": variables},
-    )
-    r.raise_for_status()
-
-    # 5. Garder le lien demande <-> process pour le panneau admin
+    # Garder le lien demande <-> process pour le panneau admin
     conn = get_db()
     conn.execute(
         """INSERT INTO demandes
@@ -147,37 +132,51 @@ def demandes_en_attente():
     return jsonify(resultats)
 
 
+TASK_APPROBATION_INSCRIPTION_ELEMENT_ID = (
+    "approbationAdmin"  # anciennement Activity_11muvfx
+)
+
+
 @app.route("/api/inscriptions-en-attente", methods=["GET"])
 @login_required(role="admin")
 def inscriptions_en_attente():
-    conn = get_db()
-    rows = conn.execute(
-        "SELECT id, nom, prenom, departement, email FROM employes WHERE statut = 'en_attente' ORDER BY id"
-    ).fetchall()
-    conn.close()
-    return jsonify([dict(r) for r in rows])
+    """L'employe n'existe pas encore en base a ce stade (il n'est insere
+    qu'apres validation, via le service task 'inserer_BD') : les donnees
+    du formulaire d'inscription sont lues directement depuis les variables
+    de la tache Camunda 'Approbation de l'admin'."""
+    tasks = search_user_tasks(TASK_APPROBATION_INSCRIPTION_ELEMENT_ID)
+    resultats = []
+    for t in tasks:
+        variables = get_task_variables(t["userTaskKey"])
+        resultats.append(
+            {
+                "id": t["userTaskKey"],
+                "nom": variables.get("nom"),
+                "prenom": variables.get("prenom"),
+                "departement": variables.get("departement"),
+                "email": variables.get("mail"),
+            }
+        )
+    return jsonify(resultats)
 
 
-@app.route("/api/inscriptions/<int:employe_id>/valider", methods=["POST"])
+@app.route("/api/inscriptions/<task_id>/valider", methods=["POST"])
 @login_required(role="admin")
-def valider_inscription(employe_id):
-    conn = get_db()
-    conn.execute("UPDATE employes SET statut = 'actif' WHERE id = ?", (employe_id,))
-    conn.commit()
-    conn.close()
-    return jsonify({"ok": True})
+def valider_inscription(task_id):
+    # select="approuver" -> la passerelle declenche en parallele la tache
+    # "Login" et le service task "inserer_BD" qui cree reellement l'employe.
+    ok, err = complete_task(task_id, {"select": "approuver"})
+    return (jsonify({"ok": True}), 200) if ok else (jsonify({"error": err}), 500)
 
 
-@app.route("/api/inscriptions/<int:employe_id>/refuser", methods=["POST"])
+@app.route("/api/inscriptions/<task_id>/refuser", methods=["POST"])
 @login_required(role="admin")
-def refuser_inscription(employe_id):
-    conn = get_db()
-    conn.execute(
-        "DELETE FROM employes WHERE id = ? AND statut = 'en_attente'", (employe_id,)
-    )
-    conn.commit()
-    conn.close()
-    return jsonify({"ok": True})
+def refuser_inscription(task_id):
+    # select="refuser" -> la passerelle "Accepter?" route maintenant vers le
+    # service task "notification_refus_inscription" (worker.py) puis un End
+    # Event dedie : le process se termine proprement, plus de tache orpheline.
+    ok, err = complete_task(task_id, {"select": "refuser"})
+    return (jsonify({"ok": True}), 200) if ok else (jsonify({"error": err}), 500)
 
 
 def _traiter_demande(task_id, decision):
