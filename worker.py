@@ -30,7 +30,7 @@ def verification_BD(
     return {"soldeSuffisant": solde_suffisant, "soldeRestant": solde}
 
 
-def notify_refusal(job: Job, nom: str, prenom: str, soldeRestant: int):
+def notification_refus(job: Job, nom: str, prenom: str, soldeRestant: int):
     print(f"EMAIL envoyé à {prenom} {nom} :", flush=True)
     print(f"Objet : Votre demande de congé a été refusée", flush=True)
     print(
@@ -112,7 +112,7 @@ async def main():
     channel = create_insecure_channel(grpc_address="localhost:26500")
     worker = ZeebeWorker(channel)
     worker.task(task_type="verification_BD")(verification_BD)
-    worker.task(task_type="notification_refus")(notify_refusal)
+    worker.task(task_type="notification_refus")(notification_refus)
     worker.task(task_type="inserer_BD")(inserer_BD)
     worker.task(task_type="authentification")(authentification)
     worker.task(task_type="notification_refus_inscription")(
