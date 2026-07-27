@@ -299,7 +299,7 @@ def liste_employes():
 @login_required(role="admin")
 def supprimer_employe(employe_id):
     conn = get_db()
-    conn.execute("UPDATE employes SET statut = 'supprime' WHERE id = ?", (employe_id,))
+    conn.execute("DELETE FROM employes WHERE id = ?", (employe_id,))
     conn.commit()
     conn.close()
     return jsonify({"ok": True})

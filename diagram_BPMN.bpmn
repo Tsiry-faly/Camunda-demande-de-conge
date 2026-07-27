@@ -9,6 +9,7 @@
       <bpmn:extensionElements>
         <zeebe:userTask />
         <zeebe:formDefinition formId="demande-conge" />
+        <zeebe:assignmentDefinition candidateGroups="employe" />
       </bpmn:extensionElements>
       <bpmn:incoming>Flow_0jhnsxn</bpmn:incoming>
       <bpmn:incoming>Flow_0j8m6oe</bpmn:incoming>
@@ -23,6 +24,7 @@
       <bpmn:extensionElements>
         <zeebe:userTask />
         <zeebe:formDefinition formId="approbation-form" />
+        <zeebe:assignmentDefinition candidateGroups="admin" />
       </bpmn:extensionElements>
       <bpmn:incoming>Flow_1hblycz</bpmn:incoming>
       <bpmn:outgoing>Flow_15jnq6n</bpmn:outgoing>
@@ -84,6 +86,7 @@
       <bpmn:extensionElements>
         <zeebe:formDefinition formId="login_form" />
         <zeebe:userTask />
+        <zeebe:assignmentDefinition candidateGroups="employe" />
       </bpmn:extensionElements>
       <bpmn:incoming>Flow_1gbqae8</bpmn:incoming>
       <bpmn:outgoing>Flow_1c9jvha</bpmn:outgoing>
@@ -92,6 +95,7 @@
       <bpmn:extensionElements>
         <zeebe:userTask />
         <zeebe:formDefinition formId="inscription_form" />
+        <zeebe:assignmentDefinition candidateGroups="employe" />
       </bpmn:extensionElements>
       <bpmn:incoming>Flow_1esi49d</bpmn:incoming>
       <bpmn:outgoing>Flow_0zbgm14</bpmn:outgoing>
@@ -100,6 +104,7 @@
       <bpmn:extensionElements>
         <zeebe:userTask />
         <zeebe:formDefinition formId="approbation_inscription_form" />
+        <zeebe:assignmentDefinition candidateGroups="admin" />
       </bpmn:extensionElements>
       <bpmn:incoming>Flow_0zbgm14</bpmn:incoming>
       <bpmn:outgoing>Flow_1j8lp9x</bpmn:outgoing>
