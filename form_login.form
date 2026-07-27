@@ -1,32 +1,6 @@
 {
   "components": [
     {
-      "label": "Nom",
-      "type": "textfield",
-      "layout": {
-        "row": "Row_0m2dhya",
-        "columns": null
-      },
-      "id": "Field_1fus807",
-      "key": "nom",
-      "validate": {
-        "required": true
-      }
-    },
-    {
-      "label": "Prénom",
-      "type": "textfield",
-      "layout": {
-        "row": "Row_1f7icff",
-        "columns": null
-      },
-      "id": "Field_08lz9r3",
-      "key": "prenom",
-      "validate": {
-        "required": true
-      }
-    },
-    {
       "label": "Mail",
       "type": "textfield",
       "layout": {

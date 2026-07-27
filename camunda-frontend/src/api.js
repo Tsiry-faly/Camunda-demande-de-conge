@@ -29,6 +29,10 @@ export async function fetchEmployes() {
   return data
 }
 
+export async function supprimerEmploye(employeId) {
+  await api.delete(`/api/employes/${employeId}`)
+}
+
 export async function fetchDemandesEnAttente() {
   const { data } = await api.get('/api/demandes-en-attente')
   return data

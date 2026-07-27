@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import {
   fetchDemandesEnAttente, approuverDemande, refuserDemande,
   fetchInscriptionsEnAttente, validerInscription, refuserInscription,
-  fetchEmployes, resetSoldes,
+  fetchEmployes, resetSoldes, supprimerEmploye,
 } from './api'
 import { useAuth } from './AuthContext'
 import { departementLabel } from './departements'
@@ -56,6 +56,19 @@ export default function AdminApprovalPage() {
       setResetEnCours(false)
     }
   }   
+
+  async function handleSupprimerEmploye(employe) {
+    if (!window.confirm(`Supprimer ${employe.prenom} ${employe.nom} ?`)) {
+      return
+    }
+    setActionEnCours(`employe-${employe.id}`)
+    try {
+      await supprimerEmploye(employe.id)
+      setEmployes((prev) => prev.filter((e) => e.id !== employe.id))
+    } finally {
+      setActionEnCours(null)
+    }
+  }
 
   useEffect(() => {
     if (ongletActif === 'employes' && employes.length === 0) {
@@ -201,7 +214,7 @@ export default function AdminApprovalPage() {
           <>
             <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 12 }}>
               <button
-                onClick={handleResetSoldes}
+                onClick={handleResetSoldes} 
                 disabled={resetEnCours}
                 className="btn btn-ghost btn-sm"
               >
@@ -222,6 +235,7 @@ export default function AdminApprovalPage() {
                       <th>Prénom</th>
                       <th>Département</th>
                       <th style={{ textAlign: 'right' }}>Solde restant</th>
+                      <th></th>
                     </tr>
                   </thead>
                   <tbody>
@@ -231,12 +245,21 @@ export default function AdminApprovalPage() {
                         <td>{e.prenom}</td>
                         <td>{departementLabel(e.departement)}</td>
                         <td className="num">{e.conge} j.</td>
+                        <td style={{ textAlign: 'right' }}>
+                          <button
+                            onClick={() => handleSupprimerEmploye(e)}
+                            disabled={actionEnCours === `employe-${e.id}`}
+                            className="btn btn-ghost btn-sm"
+                          >
+                            Supprimer
+                          </button>
+                        </td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
               </div>
-            )}
+            )}       
           </>
         )}
       </div>

@@ -295,6 +295,16 @@ def liste_employes():
     return jsonify([dict(r) for r in rows])
 
 
+@app.route("/api/employes/<int:employe_id>", methods=["DELETE"])
+@login_required(role="admin")
+def supprimer_employe(employe_id):
+    conn = get_db()
+    conn.execute("UPDATE employes SET statut = 'supprime' WHERE id = ?", (employe_id,))
+    conn.commit()
+    conn.close()
+    return jsonify({"ok": True})
+
+
 @app.route("/api/reset-soldes", methods=["POST"])
 @login_required(role="admin")
 def reset_soldes():
