@@ -11,7 +11,6 @@
         <zeebe:formDefinition formId="demande-conge" />
         <zeebe:assignmentDefinition candidateGroups="employe" />
       </bpmn:extensionElements>
-      <bpmn:incoming>Flow_0jhnsxn</bpmn:incoming>
       <bpmn:incoming>Flow_0j8m6oe</bpmn:incoming>
       <bpmn:outgoing>Flow_1b6he63</bpmn:outgoing>
     </bpmn:userTask>
@@ -109,17 +108,12 @@
       <bpmn:incoming>Flow_0zbgm14</bpmn:incoming>
       <bpmn:outgoing>Flow_1j8lp9x</bpmn:outgoing>
     </bpmn:userTask>
-    <bpmn:parallelGateway id="Gateway_0f5x8ra">
-      <bpmn:incoming>Flow_0o6d5dh</bpmn:incoming>
-      <bpmn:outgoing>Flow_0567vyb</bpmn:outgoing>
-      <bpmn:outgoing>Flow_0jhnsxn</bpmn:outgoing>
-    </bpmn:parallelGateway>
-    <bpmn:sequenceFlow id="Flow_0567vyb" sourceRef="Gateway_0f5x8ra" targetRef="Activity_0jola5p" />
     <bpmn:serviceTask id="Activity_0jola5p" name="Inserer dans la base de données">
       <bpmn:extensionElements>
         <zeebe:taskDefinition type="inserer_BD" />
       </bpmn:extensionElements>
-      <bpmn:incoming>Flow_0567vyb</bpmn:incoming>
+      <bpmn:incoming>Flow_0o6d5dh</bpmn:incoming>
+      <bpmn:outgoing>Flow_1pl3gik</bpmn:outgoing>
     </bpmn:serviceTask>
     <bpmn:sequenceFlow id="Flow_0zbgm14" sourceRef="sInscrire" targetRef="approbationAdmin" />
     <bpmn:exclusiveGateway id="Gateway_1eg1l9t" name="Accepter?">
@@ -128,7 +122,7 @@
       <bpmn:outgoing>Flow_02a26sx</bpmn:outgoing>
     </bpmn:exclusiveGateway>
     <bpmn:sequenceFlow id="Flow_1j8lp9x" sourceRef="approbationAdmin" targetRef="Gateway_1eg1l9t" />
-    <bpmn:sequenceFlow id="Flow_0o6d5dh" name="oui" sourceRef="Gateway_1eg1l9t" targetRef="Gateway_0f5x8ra">
+    <bpmn:sequenceFlow id="Flow_0o6d5dh" name="oui" sourceRef="Gateway_1eg1l9t" targetRef="Activity_0jola5p">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">=select = "approuver"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_1c9jvha" sourceRef="login" targetRef="authentification" />
@@ -155,8 +149,11 @@
     </bpmn:serviceTask>
     <bpmn:sequenceFlow id="Flow_1gbqae8" sourceRef="Gateway_0mhkiwf" targetRef="login" />
     <bpmn:sequenceFlow id="Flow_1m2v0ts" sourceRef="StartEvent_1" targetRef="Gateway_0mhkiwf" />
-    <bpmn:sequenceFlow id="Flow_0jhnsxn" sourceRef="Gateway_0f5x8ra" targetRef="remplirDemande" />
     <bpmn:sequenceFlow id="Flow_0j8m6oe" sourceRef="authentification" targetRef="remplirDemande" />
+    <bpmn:endEvent id="Event_1rz7qr3" name="Ajouter dans la base">
+      <bpmn:incoming>Flow_1pl3gik</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_1pl3gik" sourceRef="Activity_0jola5p" targetRef="Event_1rz7qr3" />
     <bpmn:textAnnotation id="TextAnnotation_05jzhbt">
       <bpmn:text>Solde restant &gt;= nbr de jour demandé</bpmn:text>
     </bpmn:textAnnotation>
@@ -231,16 +228,14 @@
       <bpmndi:BPMNShape id="Activity_1uv2u3r_di" bpmnElement="approbationAdmin">
         <dc:Bounds x="220" y="310" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Gateway_0f5x8ra_di" bpmnElement="Gateway_0f5x8ra">
-        <dc:Bounds x="685" y="325" width="50" height="50" />
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_1rlo0uz_di" bpmnElement="Activity_0jola5p">
-        <dc:Bounds x="800" y="310" width="100" height="80" />
+        <dc:Bounds x="660" y="310" width="100" height="80" />
+        <bpmndi:BPMNLabel />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Gateway_1eg1l9t_di" bpmnElement="Gateway_1eg1l9t" isMarkerVisible="true">
-        <dc:Bounds x="475" y="325" width="50" height="50" />
+        <dc:Bounds x="525" y="325" width="50" height="50" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="435" y="323" width="50" height="14" />
+          <dc:Bounds x="485" y="323" width="50" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_1p7yhjq_di" bpmnElement="authentification">
@@ -251,8 +246,14 @@
         <dc:Bounds x="692" y="472" width="36" height="36" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_02vru0t_di" bpmnElement="notificationRefusInscription">
-        <dc:Bounds x="450" y="450" width="100" height="80" />
+        <dc:Bounds x="500" y="450" width="100" height="80" />
         <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1rz7qr3_di" bpmnElement="Event_1rz7qr3">
+        <dc:Bounds x="832" y="332" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="813" y="375" width="74" height="27" />
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="TextAnnotation_05jzhbt_di" bpmnElement="TextAnnotation_05jzhbt">
         <dc:Bounds x="799" y="221" width="102.31562137049941" height="57" />
@@ -306,23 +307,19 @@
           <dc:Bounds x="270" y="180" width="19" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_0567vyb_di" bpmnElement="Flow_0567vyb">
-        <di:waypoint x="735" y="350" />
-        <di:waypoint x="800" y="350" />
-      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0zbgm14_di" bpmnElement="Flow_0zbgm14">
         <di:waypoint x="270" y="290" />
         <di:waypoint x="270" y="310" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1j8lp9x_di" bpmnElement="Flow_1j8lp9x">
         <di:waypoint x="320" y="350" />
-        <di:waypoint x="475" y="350" />
+        <di:waypoint x="525" y="350" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0o6d5dh_di" bpmnElement="Flow_0o6d5dh">
-        <di:waypoint x="525" y="350" />
-        <di:waypoint x="685" y="350" />
+        <di:waypoint x="575" y="350" />
+        <di:waypoint x="660" y="350" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="584" y="359" width="15" height="14" />
+          <dc:Bounds x="589" y="359" width="15" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1c9jvha_di" bpmnElement="Flow_1c9jvha">
@@ -330,14 +327,14 @@
         <di:waypoint x="500" y="140" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_02a26sx_di" bpmnElement="Flow_02a26sx">
-        <di:waypoint x="500" y="375" />
-        <di:waypoint x="500" y="450" />
+        <di:waypoint x="550" y="375" />
+        <di:waypoint x="550" y="450" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="506" y="403.5" width="19" height="14" />
+          <dc:Bounds x="535" y="407" width="19" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0020tf9_di" bpmnElement="Flow_0020tf9">
-        <di:waypoint x="550" y="490" />
+        <di:waypoint x="600" y="490" />
         <di:waypoint x="692" y="490" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1gbqae8_di" bpmnElement="Flow_1gbqae8">
@@ -348,13 +345,13 @@
         <di:waypoint x="198" y="140" />
         <di:waypoint x="245" y="140" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_0jhnsxn_di" bpmnElement="Flow_0jhnsxn">
-        <di:waypoint x="710" y="325" />
-        <di:waypoint x="710" y="180" />
-      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0j8m6oe_di" bpmnElement="Flow_0j8m6oe">
         <di:waypoint x="600" y="140" />
         <di:waypoint x="660" y="140" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1pl3gik_di" bpmnElement="Flow_1pl3gik">
+        <di:waypoint x="760" y="350" />
+        <di:waypoint x="832" y="350" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Association_0gk4vmu_di" bpmnElement="Association_0gk4vmu">
         <di:waypoint x="956" y="151" />
