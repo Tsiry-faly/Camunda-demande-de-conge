@@ -1,10 +1,3 @@
-"""Petites fonctions utilitaires pour piloter Camunda 8 (REST API v2)
-depuis Flask : demarrer un process, retrouver/assigner/completer une
-user task, lire ses variables, annuler une instance.
-
-Centralise ici pour eviter de dupliquer ces appels entre auth.py et app.py.
-"""
-
 import json
 import time
 

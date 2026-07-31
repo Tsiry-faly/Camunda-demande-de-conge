@@ -92,9 +92,7 @@ button {
   outline-offset: 2px;
 }
 
-/* ==========================================================================
-   Layout shells
-   ========================================================================== */
+/* Layout shells */
 .page {
   flex: 1;
   display: flex;
@@ -113,9 +111,7 @@ button {
   max-width: 760px;
 }
 
-/* ==========================================================================
-   Card
-   ========================================================================== */
+/*Card*/
 .card {
   background: var(--surface);
   border: 1px solid var(--line);
@@ -143,9 +139,7 @@ button {
   margin-bottom: 24px;
 }
 
-/* ==========================================================================
-   Topbar (employee / admin pages)
-   ========================================================================== */
+/*Topbar (employee / admin pages)*/
 .topbar {
   display: flex;
   justify-content: space-between;
@@ -177,9 +171,9 @@ button {
   flex-shrink: 0;
 }
 
-/* ==========================================================================
+/* 
    Form elements
-   ========================================================================== */
+    */
 .field {
   margin-bottom: 16px;
 }
@@ -236,9 +230,7 @@ textarea.input {
   min-height: 84px;
 }
 
-/* ==========================================================================
-   Buttons
-   ========================================================================== */
+/*Buttons*/
 .btn {
   display: inline-flex;
   align-items: center;
@@ -291,9 +283,7 @@ textarea.input {
 
 .btn-sm { padding: 8px 14px; font-size: 13.5px; }
 
-/* ==========================================================================
-   Alerts / status text
-   ========================================================================== */
+/*Alerts / status text*/
 .alert {
   border-radius: 9px;
   padding: 10px 14px;
@@ -310,9 +300,7 @@ textarea.input {
   
 }
 
-/* ==========================================================================
-   Badges (pending / approved / refused)
-   ========================================================================== */
+/*Badges (pending / approved / refused)*/
 .badge {
   display: inline-flex;
   align-items: center;
@@ -333,9 +321,7 @@ textarea.input {
 .badge-approved { background: var(--moss-tint); color: var(--moss); }
 .badge-refused { background: var(--clay-tint); color: var(--clay); }
 
-/* ==========================================================================
-   Notifications (page employe : resultat d'une demande)
-   ========================================================================== */
+/*Notifications (page employe : resultat d'une demande)*/
 .notification-stack {
   position: fixed;
   top: 20px;
@@ -393,9 +379,7 @@ textarea.input {
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* ==========================================================================
-   Tabs (admin panel)
-   ========================================================================== */
+/*Tabs (admin panel)*/
 .tabs {
   display: flex;
   gap: 4px;
@@ -450,9 +434,7 @@ textarea.input {
   background: var(--teal-tint);
 }
 
-/* ==========================================================================
-   Request / registration list items
-   ========================================================================== */
+/*Request / registration list items*/
 .item-list {
   display: flex;
   flex-direction: column;
@@ -512,9 +494,7 @@ textarea.input {
   font-size: 14px;
 }
 
-/* ==========================================================================
-   Table (employee list)
-   ========================================================================== */
+/*Table (employee list)*/
 .table-wrap {
   border: 1px solid var(--line);
   border-radius: 11px;
@@ -554,9 +534,7 @@ table.data-table {
   color: var(--ink);
 }
 
-/* ==========================================================================
-   Misc
-   ========================================================================== */
+/* Misc */
 .loading-note {
   color: var(--ink-faint);
   font-size: 14px;
