@@ -1,17 +1,18 @@
-import sqlite3
 import asyncio
 from datetime import datetime
 from pyzeebe import ZeebeWorker, create_insecure_channel, Job
 from werkzeug.security import generate_password_hash, check_password_hash
 
+from db import get_connection
+
 
 def verification_BD(
     nom: str, prenom: str, departement: str, dateDebut: str, dateFin: str
 ):
-    conn = sqlite3.connect("conges.db")
+    conn = get_connection(dict_rows=False)
     cursor = conn.cursor()
     cursor.execute(
-        "SELECT conge FROM employes WHERE nom = ? AND prenom = ? AND departement = ?",
+        "SELECT conge FROM employes WHERE nom = %s AND prenom = %s AND departement = %s",
         (nom, prenom, departement),
     )
     row = cursor.fetchone()
@@ -41,12 +42,12 @@ def notification_refus(job: Job, nom: str, prenom: str, soldeRestant: int):
 
     # Enregistre le refus automatique pour que la page employe puisse
     # afficher une notification (voir /api/mes-notifications cote Flask).
-    conn = sqlite3.connect("conges.db")
+    conn = get_connection(dict_rows=False)
     conn.execute(
         """UPDATE demandes
-           SET statut = 'refuse_solde', solde_restant = ?, vu = 0,
+           SET statut = 'refuse_solde', solde_restant = %s, vu = 0,
                updated_at = CURRENT_TIMESTAMP
-           WHERE process_instance_key = ?""",
+           WHERE process_instance_key = %s""",
         (soldeRestant, str(job.process_instance_key)),
     )
     conn.commit()
@@ -58,9 +59,9 @@ def notification_refus(job: Job, nom: str, prenom: str, soldeRestant: int):
 def inserer_BD(nom: str, prenom: str, departement: str, mail: str, motDePasse: str):
     """Cree l'employe une fois que l'admin a approuve son inscription
     (branche 'approuver' de la passerelle parallele Gateway_0f5x8ra)."""
-    conn = sqlite3.connect("conges.db")
+    conn = get_connection(dict_rows=False)
     existant = conn.execute(
-        "SELECT id FROM employes WHERE email = ?", (mail,)
+        "SELECT id FROM employes WHERE email = %s", (mail,)
     ).fetchone()
     if existant:
         conn.close()
@@ -69,7 +70,7 @@ def inserer_BD(nom: str, prenom: str, departement: str, mail: str, motDePasse: s
     conn.execute(
         """INSERT INTO employes
            (nom, prenom, departement, conge, email, password_hash, statut)
-           VALUES (?, ?, ?, 25, ?, ?, 'actif')""",
+           VALUES (%s, %s, %s, 25, %s, %s, 'actif')""",
         (nom, prenom, departement, mail, generate_password_hash(motDePasse)),
     )
     conn.commit()
@@ -85,9 +86,9 @@ def authentification(mail: str, motDePasse: str):
     en cas d'incoherence, on leve une erreur -> Zeebe cree un incident et
     bloque l'instance plutot que de laisser passer une authentification
     invalide silencieusement."""
-    conn = sqlite3.connect("conges.db")
+    conn = get_connection(dict_rows=False)
     row = conn.execute(
-        "SELECT password_hash FROM employes WHERE email = ? AND statut = 'actif'",
+        "SELECT password_hash FROM employes WHERE email = %s AND statut = 'actif'",
         (mail,),
     ).fetchone()
     conn.close()

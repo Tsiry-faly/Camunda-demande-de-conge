@@ -1,11 +1,10 @@
 from functools import wraps
-import sqlite3
-import os
 import re
 
 from flask import Blueprint, request, jsonify, session
 from werkzeug.security import check_password_hash
 
+from db import get_connection
 from camunda_client import (
     start_process_instance,
     find_user_task,
@@ -14,9 +13,6 @@ from camunda_client import (
     cancel_process_instance,
 )
 
-DB_PATH = os.path.join(
-    os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "conges.db"
-)
 auth_bp = Blueprint("auth", __name__)
 
 PROCESS_ID = "Process_0ul30q6"
@@ -27,9 +23,7 @@ DEPARTEMENTS_VALIDES = {"si", "rh", "fc", "mc", "po"}
 
 
 def get_db():
-    conn = sqlite3.connect(DB_PATH)
-    conn.row_factory = sqlite3.Row
-    return conn
+    return get_connection(dict_rows=True)
 
 
 @auth_bp.route("/api/register", methods=["POST"])
@@ -52,7 +46,7 @@ def register():
 
     conn = get_db()
     existant = conn.execute(
-        "SELECT id FROM employes WHERE email = ?", (email,)
+        "SELECT id FROM employes WHERE email = %s", (email,)
     ).fetchone()
     conn.close()
     if existant:
@@ -113,7 +107,7 @@ def login():
     # 1) Compte admin : verifie directement en base (pas de passage par
     #    Camunda, ce role n'est pas modelise dans le process).
     admin = conn.execute(
-        "SELECT * FROM admins WHERE username = ?", (identifiant,)
+        "SELECT * FROM admins WHERE username = %s", (identifiant,)
     ).fetchone()
     if admin and check_password_hash(admin["password_hash"], password):
         conn.close()
@@ -128,7 +122,7 @@ def login():
     #    que collecter les champs du formulaire), puis on demarre/complete
     #    la tache Camunda pour respecter le diagramme.
     employe = conn.execute(
-        "SELECT * FROM employes WHERE email = ?", (identifiant,)
+        "SELECT * FROM employes WHERE email = %s", (identifiant,)
     ).fetchone()
     conn.close()
 

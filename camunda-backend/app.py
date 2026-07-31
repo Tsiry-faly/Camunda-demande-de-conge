@@ -1,11 +1,13 @@
+import sys, os
+
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import requests
-import sqlite3
-import time
 from datetime import datetime
 
-from auth import auth_bp, login_required, DB_PATH
+from auth import auth_bp, login_required
+from db import get_connection
 from camunda_client import (
     find_user_task,
     assign_task,
@@ -33,9 +35,7 @@ TASK_APPROBATION_ELEMENT_ID = "approuverRefuser"  # anciennement Activity_156jd4
 
 
 def get_db():
-    conn = sqlite3.connect(DB_PATH)
-    conn.row_factory = sqlite3.Row
-    return conn
+    return get_connection(dict_rows=True)
 
 
 @app.route("/api/start-leave-request", methods=["POST"])
@@ -78,7 +78,7 @@ def start_leave_request():
     conn.execute(
         """INSERT INTO demandes
            (employe_id, date_debut, date_fin, motif, process_instance_key)
-           VALUES (?, ?, ?, ?, ?)""",
+           VALUES (%s, %s, %s, %s, %s)""",
         (
             session["user_id"],
             variables["dateDebut"],
@@ -112,7 +112,7 @@ def demandes_en_attente():
             """SELECT d.*, e.nom, e.prenom, e.departement
                FROM demandes d
                JOIN employes e ON e.id = d.employe_id
-               WHERE d.process_instance_key = ?""",
+               WHERE d.process_instance_key = %s""",
             (t["processInstanceKey"],),
         ).fetchone()
         if row:
@@ -194,8 +194,8 @@ def _marquer_statut(process_instance_key, statut):
     conn = get_db()
     conn.execute(
         """UPDATE demandes
-           SET statut = ?, vu = 0, updated_at = CURRENT_TIMESTAMP
-           WHERE process_instance_key = ?""",
+           SET statut = %s, vu = 0, updated_at = CURRENT_TIMESTAMP
+           WHERE process_instance_key = %s""",
         (statut, str(process_instance_key)),
     )
     conn.commit()
@@ -208,7 +208,7 @@ def _decrementer_solde(process_instance_key):
         return
     conn = get_db()
     row = conn.execute(
-        "SELECT employe_id, date_debut, date_fin FROM demandes WHERE process_instance_key = ?",
+        "SELECT employe_id, date_debut, date_fin FROM demandes WHERE process_instance_key = %s",
         (str(process_instance_key),),
     ).fetchone()
     if row:
@@ -216,7 +216,7 @@ def _decrementer_solde(process_instance_key):
         d2 = datetime.strptime(row["date_fin"], "%Y-%m-%d")
         jours = (d2 - d1).days + 1
         conn.execute(
-            "UPDATE employes SET conge = conge - ? WHERE id = ?",
+            "UPDATE employes SET conge = conge - %s WHERE id = %s",
             (jours, row["employe_id"]),
         )
         conn.commit()
@@ -259,7 +259,7 @@ def mes_notifications():
     rows = conn.execute(
         """SELECT id, date_debut, date_fin, statut, solde_restant, updated_at
            FROM demandes
-           WHERE employe_id = ? AND statut != 'en_attente' AND vu = 0
+           WHERE employe_id = %s AND statut != 'en_attente' AND vu = 0
            ORDER BY updated_at DESC""",
         (session["user_id"],),
     ).fetchall()
@@ -274,7 +274,7 @@ def marquer_notification_vue(demande_id):
 
     conn = get_db()
     conn.execute(
-        "UPDATE demandes SET vu = 1 WHERE id = ? AND employe_id = ?",
+        "UPDATE demandes SET vu = 1 WHERE id = %s AND employe_id = %s",
         (demande_id, session["user_id"]),
     )
     conn.commit()
@@ -299,7 +299,7 @@ def liste_employes():
 @login_required(role="admin")
 def supprimer_employe(employe_id):
     conn = get_db()
-    conn.execute("DELETE FROM employes WHERE id = ?", (employe_id,))
+    conn.execute("DELETE FROM employes WHERE id = %s", (employe_id,))
     conn.commit()
     conn.close()
     return jsonify({"ok": True})
